@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science, Technology, and Society Quiz</title>
+    <style>
+        body { background-color: #f0ebf8; font-family: 'Roboto', Arial, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .form-container { width: 100%; max-width: 640px; }
+        .header-card { background-color: white; border-top: 10px solid #673ab7; border-radius: 8px; padding: 24px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .question-card { background-color: white; border-radius: 8px; padding: 24px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { margin: 0 0 10px 0; font-size: 32px; }
+        .question-text { font-size: 16px; font-weight: 500; margin-bottom: 15px; }
+        .option { margin-bottom: 10px; display: flex; align-items: center; }
+        input[type="radio"] { margin-right: 10px; cursor: pointer; }
+        label { cursor: pointer; font-size: 14px; }
+        button { background-color: #673ab7; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #512da8; }
+        .result { display: none; margin-top: 20px; background-color: white; padding: 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #673ab7; }
+        .correct-answer { color: #2e7d32; font-weight: bold; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header-card">
+            <h1>STS: Lessons 1 & 2 Quiz</h1>
+            <p>Historical Antecedents, Intellectual Revolutions, and Information Revolution.</p>
+            <p style="color: red;">* Required</p>
+        </div>
+
+        <form id="quizForm">
+            <div id="questions"></div>
+            <button type="button" onclick="submitQuiz()">Submit</button>
+        </form>
+
+        <div id="resultArea" class="result">
+            <h2>Your Result</h2>
+            <p id="scoreDisplay"></p>
+            <button onclick="location.reload()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // LESSON 1: ANCIENT AGES
+            { q: "What does the Latin word 'scientia' mean?", a: ["Knowledge", "Truth", "Discovery", "Evolution"], c: 0 },
+            { q: "Which region is known as the 'cradle of civilization'?", a: ["Egypt", "Mesopotamia", "China", "Greece"], c: 1 },
+            { q: "Sumerians used this first system of writing:", a: ["Hieroglyphics", "Alphabet", "Cuneiform", "Pictographs"], c: 2 },
+            { q: "Which civilization built the Hanging Gardens of Babylon?", a: ["Sumerian", "Babylonian", "Egyptian", "Roman"], c: 1 },
+            { q: "The 'paper' invented by Egyptians was made from what plant?", a: ["Bamboo", "Cotton", "Papyrus", "Hemp"], c: 2 },
+            { q: "What did Egyptians wear around their eyes to prevent disease?", a: ["Kohl", "Wigs", "Silk", "Oil"], c: 0 },
+            { q: "Who is considered the birthplace of Western Philosophy?", a: ["Rome", "Egypt", "China", "Greece"], c: 3 },
+            { q: "Ancient Greeks used water or sand in their mechanisms to invent the:", a: ["Telescope", "Alarm clock", "Steam engine", "Compass"], c: 1 },
+            { q: "What Greek invention was used for milling grains?", a: ["Windmill", "Watermill", "Hand-mill", "Animal-mill"], c: 1 },
+            { q: "The Roman Empire was considered the cradle of:", a: ["Science", "Religion", "Politics and Governance", "Art"], c: 2 },
+            { q: "What were the Roman newspapers called?", a: ["Codex", "Papyri", "Gazettes", "Journals"], c: 2 },
+            { q: "Which civilization is the oldest in Asia and famous for silk?", a: ["Japan", "China", "Korea", "India"], c: 1 },
+            { q: "Gunpowder was accidentally invented by alchemists seeking:", a: ["Gold", "Immortality", "War weapons", "Fuel"], c: 1 },
+            // MIDDLE AGES & MODERN TIMES
+            { q: "Who invented the printing press using a cast metal type?", a: ["Johann Gutenberg", "Louis Pasteur", "Zacharias Janssen", "Galileo"], c: 0 },
+            { q: "Who developed the first compound microscope?", a: ["Robert Hooke", "Zacharias Janssen", "Isaac Newton", "Alexander Bell"], c: 1 },
+            { q: "What was the 'Age of Exploration' necessity that led to the telescope?", a: ["Nautical inventions", "Printing", "Medicine", "Agriculture"], c: 0 },
+            { q: "Louis Pasteur invented this process to kill bacteria in milk:", a: ["Sterilization", "Pasteurization", "Fermentation", "Boiling"], c: 1 },
+            { q: "Who developed the first telephone?", a: ["Thomas Edison", "Alexander Graham Bell", "Samuel Morse", "Victor Llave"], c: 1 },
+            // PHILIPPINE INVENTIONS
+            { q: "Victor Llave invented an amphibious tricycle called:", a: ["H2O Tech", "Salamander", "Salt Lamp", "OL Trap"], c: 1 },
+            { q: "The SALt lamp runs on what resource?", a: ["Solar power", "Saltwater", "Kerosene", "Batteries"], c: 1 },
+            { q: "What was introduced in 2010 by DOST-ITDI to combat Dengue?", a: ["Vaccine", "OL Trap", "Antibiotics", "Insecticide"], c: 1 },
+            // LESSON 2: INTELLECTUAL REVOLUTIONS
+            { q: "A drastic change in what is established or believed by society is a:", a: ["Evolution", "Revolution", "Invention", "Innovation"], c: 1 },
+            { q: "Claudius Ptolemy's model of the universe where Earth is the center:", a: ["Heliocentrism", "Geocentrism", "Egocentrism", "Big Bang"], c: 1 },
+            { q: "Who challenged the Geocentric model with Heliocentrism?", a: ["Charles Darwin", "Sigmund Freud", "Nicolaus Copernicus", "Ptolemy"], c: 2 },
+            { q: "In Heliocentrism, what is at the center of the solar system?", a: ["Earth", "Moon", "Sun", "Mars"], c: 2 },
+            { q: "Who wrote 'The Origin of Species'?", a: ["Copernicus", "Charles Darwin", "Sigmund Freud", "Newton"], c: 1 },
+            { q: "Darwin's theory suggests only the ______ would survive.", a: ["Strongest", "Fastest", "Fittest", "Smartest"], c: 2 },
+            { q: "Who is the father of Psychoanalysis?", a: ["Charles Darwin", "Sigmund Freud", "Nicolaus Copernicus", "Carl Jung"], c: 1 },
+            { q: "The part of personality operating on the 'pleasure principle':", a: ["Id", "Ego", "Superego", "Unconscious"], c: 0 },
+            { q: "The 'rational mediator' in Freud's theory:", a: ["Id", "Ego", "Superego", "Conscience"], c: 1 },
+            { q: "The 'moral compass' or conscience of personality:", a: ["Id", "Ego", "Superego", "Instinct"], c: 2 },
+            { q: "The process of blocking out distressing thoughts is called:", a: ["Projection", "Rationalization", "Repression", "Denial"], c: 2 },
+            { q: "Freud saw ______ as the 'royal road to the unconscious'.", a: ["Meditation", "Dreams", "Speech", "Hypnosis"], c: 1 },
+            { q: "Which defense mechanism involves refusing to acknowledge reality?", a: ["Projection", "Denial", "Displacement", "Rationalization"], c: 1 },
+            // INFORMATION REVOLUTION & MESO-AMERICA
+            { q: "Which period describes trends beyond the Industrial Revolution?", a: ["Scientific Rev", "Digital Age", "Information Revolution", "Modern Age"], c: 2 },
+            { q: "Meso-America spans from Mexico to which region?", a: ["South America", "Guatemala and parts of Honduras", "Canada", "USA"], c: 1 },
+            { q: "What was the most advanced Mesoamerican civilization?", a: ["Aztec", "Inca", "Maya", "Olmec"], c: 2 },
+            { q: "The Maya used a pictorial script called:", a: ["Cuneiform", "Maya hieroglyphs", "Alphabet", "Latin"], c: 1 },
+            { q: "Which Mayan codex contains solar eclipse predictions?", a: ["Maya Codex", "Dresden Codex", "Aztec Codex", "Venus Codex"], c: 1 },
+            { q: "The Maya calendar 'Haab' consists of how many days?", a: ["260", "365", "300", "360"], c: 1 },
+            { q: "The Aztec rubber ball game was called:", a: ["Tlachtli", "Maya ball", "Rubber ball", "Popol Vuh"], c: 0 },
+            { q: "Aztecs used these to transport sewage to prevent pollution:", a: ["Pipes", "Canoes", "Aqueducts", "Buckets"], c: 1 },
+            { q: "Which Asian country is most notable for electronics and automobiles?", a: ["China", "Taiwan", "Japan", "South Korea"], c: 2 },
+            { q: "Which countries produce 90% of the world's digital gadgets?", a: ["USA/UK", "Japan/Taiwan/S. Korea/China", "India/Russia", "Germany/France"], c: 1 },
+            { q: "The invention of the alphabet is attributed to:", a: ["Ancient Greeks", "Egyptians", "Middle East/Northwestern Semites", "Romans"], c: 2 },
+            { q: "African medicine used ______ to counter poisons.", a: ["Antidotes", "Analgesics", "Anesthetics", "Dewormers"], c: 0 },
+            { q: "Malians had cosmological myths about which star?", a: ["North Star", "Sirius", "Sun", "Venus"], c: 1 },
+            { q: "Nubian builders were experts in calculating the slopes of:", a: ["Rivers", "Pyramids", "Temples", "Roads"], c: 1 },
+            { q: "The Information Revolution led us to the age of the:", a: ["Steam engine", "Internet", "Television", "Radio"], c: 1 },
+            { q: "Optical communication networks deliver massive amounts of:", a: ["Electricity", "Data", "Goods", "Services"], c: 1 },
+            // ADDITIONAL FROM SLIDES
+            { q: "What does 'Mesopotamia' mean in Greek?", a: ["Between two mountains", "Between two rivers", "Fertile land", "Land of gods"], c: 1 },
+            { q: "Which civilization used wigs for health and wellness?", a: ["Roman", "Greek", "Egyptian", "Chinese"], c: 2 },
+            { q: "The Great Wall of China was built for:", a: ["Tourism", "Trade", "Protection", "Housing"], c: 2 },
+            { q: "Who discovered that Traumata are repressed into the unconscious?", a: ["Darwin", "Copernicus", "Freud", "Ptolemy"], c: 2 },
+            { q: "Attributing one's own unacceptable feelings to others is:", a: ["Denial", "Projection", "Displacement", "Rationalization"], c: 1 },
+            { q: "Maya architecture was the first to use ______ ceilings.", a: ["Flat", "Pitched", "Domes", "Circular"], c: 1 },
+            { q: "The Maya calendar had how many periods of 20 days?", a: ["12", "18", "20", "10"], c: 1 },
+            { q: "Which civilization pioneered public latrines along highways?", a: ["Maya", "Aztec", "Egyptian", "Roman"], c: 1 },
+            { q: "What is the source of all instinctual drives?", a: ["Id", "Ego", "Superego", "Conscious"], c: 0 },
+            { q: "Which revolution impacted people's views of the world most heavily?", a: ["Industrial", "Intellectual", "Agricultural", "Military"], c: 1 }
+        ];
+
+        const questionsContainer = document.getElementById('questions');
+        quizData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-text">${index + 1}. ${item.q} <span style="color:red">*</span></div>
+                ${item.a.map((opt, i) => `
+                    <div class="option">
+                        <input type="radio" name="q${index}" id="q${index}o${i}" value="${i}">
+                        <label for="q${index}o${i}">${opt}</label>
+                    </div>
+                `).join('')}
+                <div id="correct${index}" class="correct-answer">Correct answer: ${item.a[item.c]}</div>
+            `;
+            questionsContainer.appendChild(card);
+        });
+
+        function submitQuiz() {
+            let score = 0;
+            quizData.forEach((item, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const correctLabel = document.getElementById(`correct${index}`);
+                if (selected && parseInt(selected.value) === item.c) {
+                    score++;
+                }
+                correctLabel.style.display = "block";
+            });
+            document.getElementById('scoreDisplay').innerText = `You scored ${score} out of ${quizData.length}`;
+            document.getElementById('resultArea').style.display = "block";
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
